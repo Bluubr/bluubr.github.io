@@ -1,3 +1,6 @@
 window.onload = () => {
-  document.getElementById('useDefaultBtn').click();
+  const btn = document.getElementById('useDefaultBtn');
+  if (btn) {
+    btn.click();
+  }
 };
