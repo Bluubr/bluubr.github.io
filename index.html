@@ -607,10 +607,10 @@ function letterZut(l1, l2, colorized) {
   ctx.drawImage(colorized, 0, 0);
 
   const leftC = tiltLetter(l1, 'left',  fontSize, w);
-  ctx.drawImage(leftC, Math.floor(w * 0.05), Math.floor(h * 0.35 - 35));
+  ctx.drawImage(leftC, Math.floor(w * 0.05), Math.floor(h * 0.35 + 40));
 
   const rightC = tiltLetter(l2, 'right', fontSize, w);
-  ctx.drawImage(rightC, Math.floor(w * 0.55), Math.floor(h * 0.35 - 35));
+  ctx.drawImage(rightC, Math.floor(w * 0.55), Math.floor(h * 0.35 + 40));
 
   return result;
 }
