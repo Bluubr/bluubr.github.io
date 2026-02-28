@@ -450,11 +450,11 @@ colorPicker.addEventListener('input', () => {
 
 useDefaultBtn.addEventListener('click', async () => {
   try {
-    baseImageEl = await loadImg('src/Base.png');
+    baseImageEl = await loadImg('src/images/Base.png');
     baseName.textContent = 'Base.png (default)';
     setStatus('Default base image loaded ✓', 'ok');
   } catch {
-    setStatus('Could not load src/Base.png — try uploading it manually.', 'err');
+    setStatus('Could not load src/image/Base.png — try uploading it manually.', 'err');
   }
 });
 
