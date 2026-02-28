@@ -299,13 +299,13 @@ class PezutifierGUI:
         # left side
         transformed_left_letter = self.tilt_letter(l1, 'left', font_size, font=font)
         capture_left_x = int(w * 0.05)
-        capture_left_y = int(h * 0.35 - 35)
+        capture_left_y = int(h * 0.35 + 40)
         img_final.paste(transformed_left_letter, (capture_left_x, capture_left_y), transformed_left_letter)
 
         # right side
         transformed_right_letter = self.tilt_letter(l2, 'right', font_size, font=font)
         capture_right_x = int(w * 0.55)
-        capture_right_y = int(h * 0.35 - 35)
+        capture_right_y = int(h * 0.35 + 40)
         img_final.paste(transformed_right_letter, (capture_right_x, capture_right_y), transformed_right_letter)
         return img_final
 
