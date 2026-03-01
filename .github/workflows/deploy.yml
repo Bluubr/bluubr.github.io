@@ -1,29 +1,35 @@
-name: Build and Deploy to GH Pages
+name: Deploy Plain HTML to GH Pages
 on:
   push:
     branches: [main]
 jobs:
-  build-and-deploy:
+  deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout 🏎️
         uses: actions/checkout@v4
 
-      - name: Install and Build 🔧
-        run: |
-          npm install
-          npm run build
+      - name: Inject Secrets into HTML/JS 💉
+        uses: xom9ikk/dotenv@v2
+        with:
+          path: ./ # Where your index.html is
         env:
-          # Mapping GitHub Secrets to environment variables
-          REACT_APP_FIREBASE_API_KEY: ${{ secrets.FIREBASE_API_KEY }}
-          REACT_APP_FIREBASE_AUTH_DOMAIN: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
-          REACT_APP_FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
-          REACT_APP_FIREBASE_STORAGE_BUCKET: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
-          REACT_APP_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
-          REACT_APP_FIREBASE_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
+          __FIREBASE_API_KEY__: ${{ secrets.FIREBASE_API_KEY }}
+          __FIREBASE_AUTH_DOMAIN__: ${{ secrets.FIREBASE_AUTH_DOMAIN }}
+          __FIREBASE_PROJECT_ID__: ${{ secrets.FIREBASE_PROJECT_ID }}
+          __FIREBASE_STORAGE_BUCKET__: ${{ secrets.FIREBASE_STORAGE_BUCKET }}
+          __FIREBASE_MESSAGING_SENDER_ID__: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
+          __FIREBASE_APP_ID__: ${{ secrets.FIREBASE_APP_ID }}
+
+      # This simple command replaces the text in your files
+      - name: Replace Placeholders
+        run: |
+          sed -i "s/__FIREBASE_API_KEY__/${{ secrets.FIREBASE_API_KEY }}/g" index.html
+          sed -i "s/__FIREBASE_AUTH_DOMAIN__/${{ secrets.FIREBASE_AUTH_DOMAIN }}/g" index.html
+          # Repeat for other variables if they are in index.html
 
       - name: Deploy 🚀
         uses: JamesIves/github-pages-deploy-action@v4
         with:
-          folder: build # Change to 'dist' if using Vite
+          folder: . # Deploy the root folder
           branch: gh-pages
