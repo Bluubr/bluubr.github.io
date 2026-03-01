@@ -6,12 +6,12 @@
  */
 
 const firebaseConfig = {
-  apiKey:            'YOUR_API_KEY',
-  authDomain:        'YOUR_PROJECT_ID.firebaseapp.com',
-  projectId:         'YOUR_PROJECT_ID',
-  storageBucket:     'YOUR_PROJECT_ID.appspot.com',
-  messagingSenderId: 'YOUR_SENDER_ID',
-  appId:             'YOUR_APP_ID',
+  apiKey:            '__YOUR_API_KEY__',
+  authDomain:        '__YOUR_PROJECT_ID__.firebaseapp.com',
+  projectId:         '__YOUR_PROJECT_ID__',
+  storageBucket:     '__YOUR_PROJECT_ID__.appspot.com',
+  messagingSenderId: '__YOUR_SENDER_ID__',
+  appId:             '__YOUR_APP_ID__',
 };
 
 // Only initialise Firebase when all placeholder values have been replaced
