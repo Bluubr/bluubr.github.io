@@ -838,14 +838,6 @@ async function processImage() {
 const IMGBB_API_KEY = '__IMGBB_API_KEY__';
 
 async function shareImage() {
-  if (IMGBB_API_KEY === 'None') {
-    shareBanner.style.display = 'block';
-    shareBanner.innerHTML =
-      '⚠️ Image hosting is not configured yet. ' +
-      'See <a href="https://github.com/Bluubr/bluubr.github.io#gallery-setup" target="_blank">setup instructions</a>.';
-    return;
-  }
-
   shareBtn.disabled = true;
   shareBtn.innerHTML = '<span class="spinner"></span> Uploading…';
   shareBanner.style.display = 'none';
