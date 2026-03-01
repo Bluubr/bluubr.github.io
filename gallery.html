@@ -101,6 +101,15 @@
       object-fit: cover;
       display: block;
     }
+    .gallery-card-title {
+      padding: .5rem 1rem 0;
+      font-size: .85rem;
+      font-weight: 600;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
     .gallery-card-meta {
       padding: .75rem 1rem;
       display: flex;
@@ -237,9 +246,16 @@ function createCard(entry) {
 
   const img = document.createElement('img');
   img.src     = url;
-  img.alt     = 'Community Pezutified image';
+  img.alt     = entry.title ? entry.title : 'Community Pezutified image';
   img.loading = 'lazy';
   card.appendChild(img);
+
+  if (entry.title) {
+    const titleEl = document.createElement('div');
+    titleEl.className   = 'gallery-card-title';
+    titleEl.textContent = entry.title;
+    card.appendChild(titleEl);
+  }
 
   const meta = document.createElement('div');
   meta.className = 'gallery-card-meta';

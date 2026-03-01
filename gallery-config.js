@@ -16,7 +16,10 @@ const firebaseConfig = {
 
 // Only initialise Firebase when all placeholder values have been replaced
 const _required = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
-if (_required.every(k => !String(firebaseConfig[k]).startsWith('YOUR_'))) {
+if (_required.every(k => {
+  const v = String(firebaseConfig[k]);
+  return !v.startsWith('YOUR_') && !v.startsWith('__');
+})) {
   firebase.initializeApp(firebaseConfig);
   window._pezFirestore = firebase.firestore();
 }
