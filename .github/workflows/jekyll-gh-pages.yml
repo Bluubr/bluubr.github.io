@@ -40,6 +40,8 @@ jobs:
           FB_SENDER: ${{ secrets.FIREBASE_MESSAGING_SENDER_ID }}
           FB_APP_ID: ${{ secrets.FIREBASE_APP_ID }}
         run: |
+          sudo chown -R $USER:$USER _site
+          
           ESCAPED_KEY=$(echo "$IMGBB_KEY" | sed 's/[&/|]/\\&/g')
 
           sed -i "s|__IMGBB_API_KEY__|$ESCAPED_KEY|g" _site/pezutifier/index.html
@@ -50,7 +52,6 @@ jobs:
           sed -i "s|__FIREBASE_STORAGE_BUCKET__|${FB_BUCKET}|g" _site/pezutifier/gallery-config.js
           sed -i "s|__FIREBASE_MESSAGING_SENDER_ID__|${FB_SENDER}|g" _site/pezutifier/gallery-config.js
           sed -i "s|__FIREBASE_APP_ID__|${FB_APP_ID}|g" _site/pezutifier/gallery-config.js
-
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
 
