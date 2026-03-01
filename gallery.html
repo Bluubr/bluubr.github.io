@@ -317,8 +317,10 @@ loadMoreBtn.addEventListener('click', loadPage);
 window.addEventListener('DOMContentLoaded', () => {
   if (window._pezFirestore) {
     loadPage();
+  } else {
+    // gallery-config.js missing, failed to load, or placeholder values not yet filled in
+    galleryConfigMissing();
   }
-  // If gallery-config.js wasn't found, galleryConfigMissing() was already called via onerror
 });
 </script>
 </body>
