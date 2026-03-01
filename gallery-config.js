@@ -10,7 +10,7 @@ const firebaseConfig = {
   authDomain:        '__FIREBASE_PROJECT_ID__.firebaseapp.com',
   projectId:         '__FIREBASE_PROJECT_ID__',
   storageBucket:     '__FIREBASE_PROJECT_ID__.appspot.com',
-  messagingSenderId: '__FIREBASE_SENDER_ID__',
+  messagingSenderId: '__FIREBASE_MESSAGING_SENDER_ID__',
   appId:             '__FIREBASE_APP_ID__',
 };
 
