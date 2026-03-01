@@ -7,6 +7,31 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
+    /* ── Site Nav ── */
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1rem;
+      padding: .7rem 1.5rem;
+      background: #0d0d12;
+      border-bottom: 1px solid #2c2c3f;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-nav a {
+      color: #7a7a99;
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 600;
+      padding: .3rem .7rem;
+      border-radius: 6px;
+      transition: color .18s, background .18s;
+    }
+    .site-nav a:hover { color: #dcdcf0; background: #1f1f2d; }
+    .site-nav a.active { color: #c4a0ff; }
+
     :root {
       --bg:           #0d0d12;
       --surface:      #17171f;
@@ -227,7 +252,31 @@
       border: 1px solid var(--border);
       display: block;
     }
-    .download-wrap { margin-top: 1rem; display: flex; justify-content: center; }
+    .download-wrap { margin-top: 1rem; display: flex; justify-content: center; gap: .7rem; flex-wrap: wrap; }
+
+    /* ── Share banner ── */
+    #shareBanner {
+      margin-top: .8rem;
+      padding: .8rem 1rem;
+      background: #1a2a1a;
+      border: 1px solid #3cb887;
+      border-radius: var(--radius-sm);
+      font-size: .85rem;
+      color: #3cb887;
+      word-break: break-all;
+      display: none;
+    }
+    #shareBanner a { color: #6ee7b7; }
+    #shareBanner .copy-btn {
+      margin-left: .5rem;
+      cursor: pointer;
+      background: none;
+      border: none;
+      color: #6ee7b7;
+      font-size: .8rem;
+      text-decoration: underline;
+      padding: 0;
+    }
 
     /* ── Spinner ── */
     .spinner {
@@ -249,6 +298,11 @@
   </style>
 </head>
 <body>
+
+<nav class="site-nav">
+  <a href="index.html" class="active">🎨 Create</a>
+  <a href="gallery.html">🖼️ Gallery</a>
+</nav>
 
 <header class="hero">
   <h1>🎨 Pezutifier</h1>
@@ -340,7 +394,9 @@
     <canvas id="outputCanvas"></canvas>
     <div class="download-wrap">
       <button id="downloadBtn" class="btn btn-success">⬇️ Download PNG</button>
+      <button id="shareBtn" class="btn btn-outline">🌐 Share to Gallery</button>
     </div>
+    <div id="shareBanner"></div>
   </div>
 
 </main>
@@ -376,6 +432,8 @@ const statusEl       = document.getElementById('status');
 const resultSection  = document.getElementById('resultSection');
 const outputCanvas   = document.getElementById('outputCanvas');
 const downloadBtn    = document.getElementById('downloadBtn');
+const shareBtn       = document.getElementById('shareBtn');
+const shareBanner    = document.getElementById('shareBanner');
 
 // ── Utilities ──────────────────────────────────────────────
 
@@ -490,6 +548,7 @@ downloadBtn.addEventListener('click', () => {
   a.download = 'pezutified.png';
   a.click();
 });
+shareBtn.addEventListener('click', shareImage);
 
 // ── Core Image Processing ──────────────────────────────────
 
@@ -745,6 +804,10 @@ async function processImage() {
     resultSection.classList.remove('hidden');
     resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     setStatus('✅ Done! Scroll down to see your result.', 'ok');
+    // Reset share banner for new result
+    shareBanner.style.display = 'none';
+    shareBtn.disabled = false;
+    shareBtn.textContent = '🌐 Share to Gallery';
 
   } catch (err) {
     console.error(err);
@@ -754,7 +817,146 @@ async function processImage() {
     processBtn.innerHTML = '🚀 Process Image';
   }
 }
+
+// ── Share / Gallery ────────────────────────────────────────
+
+/**
+ * Upload the current canvas to ImgBB and save the URL to Firebase Firestore
+ * so it appears in the community gallery.
+ *
+ * ImgBB API — https://api.imgbb.com/
+ *   POST https://api.imgbb.com/1/upload?key=YOUR_KEY
+ *   FormData: { image: <base64> }
+ *   No special headers or OAuth — just an API key from https://api.imgbb.com/
+ *
+ * Setup required:
+ *  1. Get a free API key at https://api.imgbb.com/ and paste it in IMGBB_API_KEY below.
+ *  2. (Optional) Create a Firebase project at https://console.firebase.google.com,
+ *     enable Firestore, and paste your config in gallery-config.js
+ *     (see gallery-config.example.js for the template).
+ */
+const IMGBB_API_KEY = 'd74416567e9456b465b277927ce801be';
+
+async function shareImage() {
+  if (IMGBB_API_KEY === 'd74416567e9456b465b277927ce801be') {
+    shareBanner.style.display = 'block';
+    shareBanner.innerHTML =
+      '⚠️ Image hosting is not configured yet. ' +
+      'See <a href="https://github.com/Bluubr/bluubr.github.io#gallery-setup" target="_blank">setup instructions</a>.';
+    return;
+  }
+
+  shareBtn.disabled = true;
+  shareBtn.innerHTML = '<span class="spinner"></span> Uploading…';
+  shareBanner.style.display = 'none';
+
+  try {
+    // Convert canvas to base64 (strip data-URL prefix)
+    const base64 = outputCanvas.toDataURL('image/png').split(',')[1];
+
+    // Upload to ImgBB — simple FormData POST, no special headers needed
+    const formData = new FormData();
+    formData.append('image', base64);
+
+    // Note: the API key is visible in client-side code and DevTools by design.
+    // Restrict usage via the ImgBB dashboard (rate limiting / allowed origins).
+    const imgbbResp = await fetch(
+      `https://api.imgbb.com/1/upload?key=${encodeURIComponent(IMGBB_API_KEY)}`,
+      { method: 'POST', body: formData }
+    );
+
+    if (!imgbbResp.ok) {
+      const errText = await imgbbResp.text().catch(() => '');
+      throw new Error(`ImgBB upload failed (${imgbbResp.status})${errText ? ': ' + errText.slice(0, 200) : ''}`);
+    }
+    const imgbbJson = await imgbbResp.json();
+    if (!imgbbJson.success) {
+      throw new Error('ImgBB returned an error: ' + (imgbbJson.error?.message || JSON.stringify(imgbbJson.error) || 'Unknown error'));
+    }
+
+    const imageUrl  = imgbbJson.data.url;
+    const deleteUrl = imgbbJson.data.delete_url;
+
+    // Save to Firestore (if Firebase is configured)
+    const entry = {
+      imageUrl,
+      deleteUrl: deleteUrl || null,
+      color: colorPicker.value,
+      contentType: document.querySelector('input[name="contentType"]:checked').value,
+      timestamp: new Date().toISOString(),
+    };
+
+    let savedToGallery = false;
+    if (window._pezFirestore) {
+      try {
+        await window._pezFirestore.collection('gallery').add(entry);
+        savedToGallery = true;
+      } catch (fbErr) {
+        console.warn('Firestore save failed:', fbErr.message);
+      }
+    }
+
+    // Show result banner — build DOM nodes to avoid innerHTML XSS
+    shareBanner.style.display = 'block';
+    shareBanner.innerHTML = '';
+
+    const msgSpan = document.createElement('span');
+    if (savedToGallery) {
+      msgSpan.textContent = '✅ Shared to the ';
+      const galLink = document.createElement('a');
+      galLink.href = 'gallery.html';
+      galLink.textContent = 'community gallery';
+      msgSpan.appendChild(galLink);
+      msgSpan.appendChild(document.createTextNode('! '));
+    } else {
+      msgSpan.textContent = '✅ Image uploaded! ';
+    }
+    shareBanner.appendChild(msgSpan);
+
+    shareBanner.appendChild(document.createTextNode('Direct link: '));
+
+    const imgLink = document.createElement('a');
+    imgLink.href   = imageUrl;
+    imgLink.target = '_blank';
+    imgLink.rel    = 'noopener noreferrer';
+    imgLink.textContent = imageUrl;
+    shareBanner.appendChild(imgLink);
+
+    const copyBtn = document.createElement('button');
+    copyBtn.className   = 'copy-btn';
+    copyBtn.textContent = ' Copy';
+    copyBtn.addEventListener('click', () => navigator.clipboard.writeText(imageUrl));
+    shareBanner.appendChild(copyBtn);
+
+    if (deleteUrl) {
+      shareBanner.appendChild(document.createElement('br'));
+      const small = document.createElement('small');
+      small.style.color = '#7a7a99';
+      small.textContent = 'Delete link (save this to remove later): ';
+      const delLink = document.createElement('a');
+      delLink.href   = deleteUrl;
+      delLink.target = '_blank';
+      delLink.rel    = 'noopener noreferrer';
+      delLink.style.color = '#7a7a99';
+      delLink.textContent = deleteUrl;
+      small.appendChild(delLink);
+      shareBanner.appendChild(small);
+    }
+
+    shareBtn.textContent = '✅ Shared!';
+  } catch (err) {
+    console.error(err);
+    shareBanner.style.display = 'block';
+    shareBanner.textContent = '❌ Share failed: ' + err.message;
+    shareBtn.disabled = false;
+    shareBtn.textContent = '🌐 Share to Gallery';
+  }
+}
 </script>
+<!-- Firebase SDK (optional — needed for community gallery) -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="gallery-config.js" onerror="console.info('gallery-config.js not found — community gallery disabled')"></script>
 <script src="clickdefault.js"></script>
 </body>
 </html>
