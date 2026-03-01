@@ -44,6 +44,7 @@ jobs:
           
           ESCAPED_KEY=$(echo "$IMGBB_KEY" | sed 's/[&/|]/\\&/g')
 
+          sed -i "s|__IMGBB_API_KEY__|$ESCAPED_KEY|g" _site/index.html
           sed -i "s|__IMGBB_API_KEY__|$ESCAPED_KEY|g" _site/pezutifier/index.html
 
           sed -i "s|__FIREBASE_API_KEY__|${FB_API_KEY}|g" _site/pezutifier/gallery-config.js
