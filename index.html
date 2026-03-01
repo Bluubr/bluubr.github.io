@@ -278,6 +278,13 @@
       padding: 0;
     }
 
+    /* ── Share title row ── */
+    #shareTitleRow {
+      display: none;
+      margin-top: .6rem;
+    }
+    #confirmShareBtn { margin-top: .5rem; }
+
     /* ── Spinner ── */
     .spinner {
       display: inline-block;
@@ -396,6 +403,13 @@
       <button id="downloadBtn" class="btn btn-success">⬇️ Download PNG</button>
       <button id="shareBtn" class="btn btn-outline">🌐 Share to Gallery</button>
     </div>
+    <div id="shareTitleRow">
+      <div class="input-group">
+        <label for="galleryTitle">Title (optional)</label>
+        <input type="text" id="galleryTitle" maxlength="80" placeholder="Give your image a title…" />
+      </div>
+      <button id="confirmShareBtn" class="btn btn-outline">✅ Confirm &amp; Share</button>
+    </div>
     <div id="shareBanner"></div>
   </div>
 
@@ -433,6 +447,9 @@ const resultSection  = document.getElementById('resultSection');
 const outputCanvas   = document.getElementById('outputCanvas');
 const downloadBtn    = document.getElementById('downloadBtn');
 const shareBtn       = document.getElementById('shareBtn');
+const shareTitleRow  = document.getElementById('shareTitleRow');
+const galleryTitle   = document.getElementById('galleryTitle');
+const confirmShareBtn= document.getElementById('confirmShareBtn');
 const shareBanner    = document.getElementById('shareBanner');
 
 // ── Utilities ──────────────────────────────────────────────
@@ -548,7 +565,13 @@ downloadBtn.addEventListener('click', () => {
   a.download = 'pezutified.png';
   a.click();
 });
-shareBtn.addEventListener('click', shareImage);
+shareBtn.addEventListener('click', () => {
+  // Show the title row so the user can optionally enter a title before confirming
+  shareTitleRow.style.display = 'block';
+  galleryTitle.focus();
+  shareBanner.style.display = 'none';
+});
+confirmShareBtn.addEventListener('click', shareImage);
 
 // ── Core Image Processing ──────────────────────────────────
 
@@ -806,6 +829,8 @@ async function processImage() {
     setStatus('✅ Done! Scroll down to see your result.', 'ok');
     // Reset share banner for new result
     shareBanner.style.display = 'none';
+    shareTitleRow.style.display = 'none';
+    galleryTitle.value = '';
     shareBtn.disabled = false;
     shareBtn.textContent = '🌐 Share to Gallery';
 
@@ -838,8 +863,14 @@ async function processImage() {
 const IMGBB_API_KEY = '__IMGBB_API_KEY__';
 
 async function shareImage() {
-  shareBtn.disabled = true;
-  shareBtn.innerHTML = '<span class="spinner"></span> Uploading…';
+  if (IMGBB_API_KEY.startsWith('__')) {
+    shareBanner.style.display = 'block';
+    shareBanner.textContent = '❌ Share is not configured yet: the ImgBB API key has not been set. See gallery-config.example.js for setup instructions.';
+    return;
+  }
+
+  confirmShareBtn.disabled = true;
+  confirmShareBtn.innerHTML = '<span class="spinner"></span> Uploading…';
   shareBanner.style.display = 'none';
 
   try {
@@ -868,6 +899,7 @@ async function shareImage() {
 
     const imageUrl  = imgbbJson.data.url;
     const deleteUrl = imgbbJson.data.delete_url;
+    const title     = galleryTitle.value.trim();
 
     // Save to Firestore (if Firebase is configured)
     const entry = {
@@ -877,6 +909,7 @@ async function shareImage() {
       contentType: document.querySelector('input[name="contentType"]:checked').value,
       timestamp: new Date().toISOString(),
     };
+    if (title) entry.title = title;
 
     let savedToGallery = false;
     if (window._pezFirestore) {
@@ -936,12 +969,13 @@ async function shareImage() {
     }
 
     shareBtn.textContent = '✅ Shared!';
+    shareTitleRow.style.display = 'none';
   } catch (err) {
     console.error(err);
     shareBanner.style.display = 'block';
     shareBanner.textContent = '❌ Share failed: ' + err.message;
-    shareBtn.disabled = false;
-    shareBtn.textContent = '🌐 Share to Gallery';
+    confirmShareBtn.disabled = false;
+    confirmShareBtn.textContent = '✅ Confirm & Share';
   }
 }
 </script>
