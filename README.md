@@ -5,13 +5,14 @@ PEZUT
 
 To enable the **community gallery** and **image sharing** features:
 
-### 1. Imgur (image hosting)
+### 1. ImgBB (image hosting)
 
-1. Register a free app at <https://api.imgur.com/oauth2/addclient> (choose *OAuth 2 authorization without a callback URL*).
-2. Copy your **Client ID**.
-3. In `index.html`, replace `YOUR_IMGUR_CLIENT_ID` with your Client ID:
+ImgBB has the simplest possible API — one POST request with a `FormData` body, no OAuth or special headers.
+
+1. Create a free account and get an API key at <https://api.imgbb.com/>.
+2. In `index.html`, replace `YOUR_IMGBB_API_KEY` with your key:
    ```js
-   const IMGUR_CLIENT_ID = 'abc123yourClientId';
+   const IMGBB_API_KEY = 'abc123yourApiKey';
    ```
 
 ### 2. Firebase (community gallery)

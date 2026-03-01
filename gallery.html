@@ -232,8 +232,11 @@ function createCard(entry) {
   const card = document.createElement('div');
   card.className = 'gallery-card';
 
+  // Support both new (imageUrl) and legacy (imgurUrl) field names
+  const url = entry.imageUrl || entry.imgurUrl;
+
   const img = document.createElement('img');
-  img.src     = entry.imgurUrl;
+  img.src     = url;
   img.alt     = 'Community Pezutified image';
   img.loading = 'lazy';
   card.appendChild(img);
@@ -251,7 +254,7 @@ function createCard(entry) {
   time.textContent = formatDate(entry.timestamp);
 
   const link = document.createElement('a');
-  link.href    = entry.imgurUrl;
+  link.href    = url;
   link.target  = '_blank';
   link.rel     = 'noopener noreferrer';
   link.textContent = '↗ Open';

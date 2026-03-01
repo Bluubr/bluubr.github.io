@@ -1,15 +1,14 @@
 /**
  * gallery-config.example.js
  *
- * To enable the community gallery and Imgur sharing:
+ * To enable the community gallery and ImgBB sharing:
  *
  * 1. Copy this file to `gallery-config.js` (git-ignored by default).
  * 2. Create a free Firebase project at https://console.firebase.google.com
  *    - Add a web app and copy the firebaseConfig values below.
  *    - Enable Cloud Firestore (start in "test mode" for quick setup).
- * 3. Register a free Imgur app at https://api.imgur.com/oauth2/addclient
- *    - Choose "OAuth 2 authorization without a callback URL".
- *    - Copy the Client ID and set IMGUR_CLIENT_ID in index.html.
+ * 3. Get a free ImgBB API key at https://api.imgbb.com/
+ *    and set IMGBB_API_KEY in index.html.
  */
 
 const firebaseConfig = {
