@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>🖼️ Pezutifier Gallery</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg:        #0d0d12;
+      --surface:   #17171f;
+      --surface2:  #1f1f2d;
+      --border:    #2c2c3f;
+      --primary:   #7c5cbf;
+      --primary-h: #9370e0;
+      --text:      #dcdcf0;
+      --muted:     #7a7a99;
+      --success:   #3cb887;
+      --danger:    #e05555;
+      --radius:    14px;
+      --radius-sm: 8px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      padding-bottom: 4rem;
+    }
+
+    /* ── Site Nav ── */
+    .site-nav {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 1rem;
+      padding: .7rem 1.5rem;
+      background: #0d0d12;
+      border-bottom: 1px solid #2c2c3f;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    .site-nav a {
+      color: #7a7a99;
+      text-decoration: none;
+      font-size: .9rem;
+      font-weight: 600;
+      padding: .3rem .7rem;
+      border-radius: 6px;
+      transition: color .18s, background .18s;
+    }
+    .site-nav a:hover { color: #dcdcf0; background: #1f1f2d; }
+    .site-nav a.active { color: #c4a0ff; }
+
+    /* ── Hero ── */
+    .hero {
+      text-align: center;
+      padding: 3rem 1rem 2rem;
+      background: linear-gradient(180deg, #1a0a3a 0%, transparent 100%);
+    }
+    .hero h1 {
+      font-size: clamp(1.8rem, 5vw, 2.8rem);
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #a07ee8 20%, #e0b0ff 80%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+    .hero p { color: var(--muted); margin-top: .6rem; font-size: 1rem; }
+
+    /* ── Container ── */
+    .container { max-width: 1100px; margin: 0 auto; padding: 0 1rem; }
+
+    /* ── Gallery Grid ── */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 1.2rem;
+      margin-top: 2rem;
+    }
+
+    .gallery-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      transition: border-color .2s, transform .2s;
+    }
+    .gallery-card:hover {
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+    .gallery-card img {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      display: block;
+    }
+    .gallery-card-meta {
+      padding: .75rem 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: .5rem;
+    }
+    .gallery-card-meta .color-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid var(--border);
+      flex-shrink: 0;
+    }
+    .gallery-card-meta .time {
+      font-size: .75rem;
+      color: var(--muted);
+      flex: 1;
+    }
+    .gallery-card-meta a {
+      font-size: .75rem;
+      color: var(--primary-h);
+      text-decoration: none;
+    }
+    .gallery-card-meta a:hover { text-decoration: underline; }
+
+    /* ── States ── */
+    #galleryMsg {
+      text-align: center;
+      color: var(--muted);
+      padding: 3rem 1rem;
+      font-size: 1rem;
+    }
+    #galleryMsg .big { font-size: 2.5rem; display: block; margin-bottom: .5rem; }
+
+    /* ── Spinner ── */
+    .spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 3px solid transparent;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      vertical-align: middle;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Load more ── */
+    .load-more-wrap { text-align: center; margin-top: 1.5rem; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: .45rem;
+      padding: .55rem 1.4rem;
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--border);
+      font-size: .9rem;
+      font-weight: 600;
+      cursor: pointer;
+      background: transparent;
+      color: var(--text);
+      transition: border-color .18s, color .18s;
+    }
+    .btn:hover { border-color: var(--primary); color: var(--primary); }
+
+    @media (max-width: 480px) {
+      .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="site-nav">
+  <a href="index.html">🎨 Create</a>
+  <a href="gallery.html" class="active">🖼️ Gallery</a>
+</nav>
+
+<header class="hero">
+  <h1>🖼️ Community Gallery</h1>
+  <p>Images created by the Pezutifier community — <a href="index.html" style="color:var(--primary-h)">make your own</a></p>
+</header>
+
+<main class="container">
+  <div id="galleryMsg"><span class="spinner"></span> Loading gallery…</div>
+  <div class="gallery-grid" id="galleryGrid"></div>
+  <div class="load-more-wrap" id="loadMoreWrap" style="display:none">
+    <button class="btn" id="loadMoreBtn">Load more</button>
+  </div>
+</main>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="gallery-config.js" onerror="galleryConfigMissing()"></script>
+<script>
+/* ═══════════════════════════════════════════════════════════
+   Pezutifier Gallery — fetches community images from Firestore
+═══════════════════════════════════════════════════════════ */
+
+const galleryGrid  = document.getElementById('galleryGrid');
+const galleryMsg   = document.getElementById('galleryMsg');
+const loadMoreWrap = document.getElementById('loadMoreWrap');
+const loadMoreBtn  = document.getElementById('loadMoreBtn');
+
+const PAGE_SIZE = 24;
+let lastDoc     = null;
+let loading     = false;
+
+function galleryConfigMissing() {
+  galleryMsg.innerHTML =
+    '<span class="big">🔧</span>' +
+    'The community gallery is not configured yet.<br>' +
+    '<a href="https://github.com/Bluubr/bluubr.github.io#gallery-setup" ' +
+    'style="color:var(--primary-h)">See setup instructions</a> to enable it, or ' +
+    '<a href="index.html" style="color:var(--primary-h)">create your own image</a>.';
+}
+
+function formatDate(isoString) {
+  try {
+    return new Date(isoString).toLocaleDateString(undefined, {
+      year: 'numeric', month: 'short', day: 'numeric',
+    });
+  } catch (_) {
+    return '';
+  }
+}
+
+function createCard(entry) {
+  const card = document.createElement('div');
+  card.className = 'gallery-card';
+
+  const img = document.createElement('img');
+  img.src     = entry.imgurUrl;
+  img.alt     = 'Community Pezutified image';
+  img.loading = 'lazy';
+  card.appendChild(img);
+
+  const meta = document.createElement('div');
+  meta.className = 'gallery-card-meta';
+
+  const dot = document.createElement('div');
+  dot.className       = 'color-dot';
+  dot.style.background = entry.color || '#888';
+  dot.title           = entry.color || '';
+
+  const time = document.createElement('span');
+  time.className   = 'time';
+  time.textContent = formatDate(entry.timestamp);
+
+  const link = document.createElement('a');
+  link.href    = entry.imgurUrl;
+  link.target  = '_blank';
+  link.rel     = 'noopener noreferrer';
+  link.textContent = '↗ Open';
+
+  meta.appendChild(dot);
+  meta.appendChild(time);
+  meta.appendChild(link);
+  card.appendChild(meta);
+
+  return card;
+}
+
+async function loadPage() {
+  if (loading || !window._pezFirestore) return;
+  loading = true;
+  loadMoreBtn.disabled = true;
+
+  try {
+    let query = window._pezFirestore
+      .collection('gallery')
+      .orderBy('timestamp', 'desc')
+      .limit(PAGE_SIZE);
+
+    if (lastDoc) query = query.startAfter(lastDoc);
+
+    const snapshot = await query.get();
+
+    if (snapshot.empty && !lastDoc) {
+      galleryMsg.innerHTML =
+        '<span class="big">✨</span>' +
+        'No images yet — be the first to share one!<br>' +
+        '<a href="index.html" style="color:var(--primary-h)">Create an image</a>';
+      return;
+    }
+
+    galleryMsg.style.display = 'none';
+
+    snapshot.forEach(doc => {
+      const entry = doc.data();
+      galleryGrid.appendChild(createCard(entry));
+      lastDoc = doc;
+    });
+
+    loadMoreWrap.style.display = snapshot.size === PAGE_SIZE ? 'block' : 'none';
+  } catch (err) {
+    console.error('Gallery load error:', err);
+    if (!lastDoc) {
+      galleryMsg.innerHTML =
+        '<span class="big">❌</span>Failed to load gallery: ' + err.message;
+    }
+  } finally {
+    loading = false;
+    loadMoreBtn.disabled = false;
+  }
+}
+
+loadMoreBtn.addEventListener('click', loadPage);
+
+// Kick off first load once DOM is ready
+window.addEventListener('DOMContentLoaded', () => {
+  if (window._pezFirestore) {
+    loadPage();
+  }
+  // If gallery-config.js wasn't found, galleryConfigMissing() was already called via onerror
+});
+</script>
+</body>
+</html>
