@@ -863,12 +863,6 @@ async function processImage() {
 const IMGBB_API_KEY = '__IMGBB_API_KEY__';
 
 async function shareImage() {
-  if (IMGBB_API_KEY.startsWith('__')) {
-    shareBanner.style.display = 'block';
-    shareBanner.textContent = '❌ Share is not configured yet: the ImgBB API key has not been set. See gallery-config.example.js for setup instructions.';
-    return;
-  }
-
   confirmShareBtn.disabled = true;
   confirmShareBtn.innerHTML = '<span class="spinner"></span> Uploading…';
   shareBanner.style.display = 'none';
