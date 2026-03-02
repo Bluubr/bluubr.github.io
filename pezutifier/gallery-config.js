@@ -14,8 +14,6 @@ const firebaseConfig = {
   appId:             '__FIREBASE_APP_ID__',
 };
 
-// Only initialise Firebase when all placeholder values have been replaced
-const _required = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
 if (_required.every(k => {
   const v = String(firebaseConfig[k]);
   return !v.startsWith('YOUR_') && !v.startsWith('__');
