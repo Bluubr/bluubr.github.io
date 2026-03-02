@@ -367,6 +367,12 @@
         <label for="rightLetter">Right Letter</label>
         <input type="text" id="rightLetter" value="B" maxlength="3" />
       </div>
+      <div class="input-group">
+        <label for="butterCheck">Butter</label>
+        <input type="checkbox" id="butterCheck" name="butter" />
+      </div>
+    </div>
+  </div>
     </div>
   </div>
 
@@ -766,6 +772,26 @@ async function addContentToImage(colorized, img1File, img2File) {
 
   const rightC = await tiltImage(img2File, 'right', targetSize, w);
   ctx.drawImage(rightC, Math.floor(w * 0.45), Math.floor(h * 0.27));
+
+  const butterCheckbox = document.getElementById('butterCheck');
+  if (butterCheckbox && butterCheckbox.checked) {
+    try {
+      const butterImg = new Image();
+      butterImg.src = 'src/images/butter.png'; 
+      
+      // Wait for the butter image to load before drawing
+      await new Promise((resolve, reject) => {
+        butterImg.onload = resolve;
+        // Added reject so it doesn't hang if the image path is wrong
+        butterImg.onerror = reject; 
+      });
+
+      // Draw the butter image. Adjust the coordinates (0, 0) as needed.
+      ctx.drawImage(butterImg, 0, 0, w, h);
+    } catch (err) {
+      console.warn("Butter image failed to load:", err);
+    }
+  }
 
   return result;
 }
