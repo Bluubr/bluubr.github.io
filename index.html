@@ -46,7 +46,7 @@
       --radius:       14px;
       --radius-sm:    8px;
     }
-
+, 
     html { scroll-behavior: smooth; }
     body {
       background: var(--bg);
@@ -710,7 +710,7 @@ async function letterZut(l1, l2, colorized) {
   if (butterCheckbox && butterCheckbox.checked) {
     try {
       const butterImg = await loadImg(BUTTER_IMG_SRC);
-      ctx.drawImage(butterImg, 0, -45, w, h);
+      ctx.drawImage(butterImg, 0, -35, w, h);
     } catch (err) {
       console.warn('Butter image failed to load:', err);
     }
