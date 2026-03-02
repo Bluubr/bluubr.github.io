@@ -14,11 +14,11 @@ const firebaseConfig = {
   appId:             '__FIREBASE_APP_ID__',
 };
 
-// Only initialise Firebase when all placeholder values have been replaced
+// Only initialise Firebase when all placeholder values have been replaced with real, non-empty values
 const _required = ['apiKey', 'authDomain', 'projectId', 'storageBucket', 'messagingSenderId', 'appId'];
 if (_required.every(k => {
   const v = String(firebaseConfig[k]);
-  return !v.startsWith('YOUR_') && !v.startsWith('__');
+  return v.length > 0 && !v.startsWith('YOUR_') && !v.startsWith('__');
 })) {
   firebase.initializeApp(firebaseConfig);
   window._pezFirestore = firebase.firestore();
