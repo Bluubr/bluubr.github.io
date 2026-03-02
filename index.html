@@ -367,11 +367,6 @@
         <label for="rightLetter">Right Letter</label>
         <input type="text" id="rightLetter" value="B" maxlength="1" />
       </div>
-      <!-- Added Checkbox -->
-      <div class="input-group">
-        <label for="butterCheck">Butter</label>
-        <input type="checkbox" id="butterCheck" name="butter" />
-      </div>
     </div>
   </div>
 
@@ -392,6 +387,15 @@
       </label>
       <span id="rightImgName" class="file-name">No image selected</span>
     </div>
+  </div>
+
+  <!-- ── Butter ── -->
+  <div class="card">
+    <div class="card-label">Options</div>
+    <label class="toggle-label">
+      <input type="checkbox" id="butterCheck" name="butter" />
+      🧈 Add Butter
+    </label>
   </div>
 
   <!-- ── Process ── -->
@@ -431,6 +435,8 @@ let baseImageEl   = null;   // HTMLImageElement for the base card
 let blekCanvas    = null;   // Pre-loaded Blek overlay canvas
 let leftImageFile = null;
 let rightImageFile = null;
+
+const BUTTER_IMG_SRC = 'src/images/butter.png';
 
 // ── DOM refs ───────────────────────────────────────────────
 const colorPicker    = document.getElementById('colorPicker');
@@ -682,7 +688,7 @@ function tiltLetter(letter, side, fontSize, refW) {
  * letterZut — mirrors letterZut() in main.py
  * Composites tilted letter canvases over the colorized card.
  */
-function letterZut(l1, l2, colorized) {
+async function letterZut(l1, l2, colorized) {
   const w        = colorized.width;
   const h        = colorized.height;
   const fontSize = Math.floor(w * 0.4);
@@ -698,6 +704,17 @@ function letterZut(l1, l2, colorized) {
 
   const rightC = tiltLetter(l2, 'right', fontSize, w);
   ctx.drawImage(rightC, Math.floor(w * 0.55), Math.floor(h * 0.35 + 35));
+
+  // Draw butter on top if checked
+  const butterCheckbox = document.getElementById('butterCheck');
+  if (butterCheckbox && butterCheckbox.checked) {
+    try {
+      const butterImg = await loadImg(BUTTER_IMG_SRC);
+      ctx.drawImage(butterImg, 0, 0, w, h);
+    } catch (err) {
+      console.warn('Butter image failed to load:', err);
+    }
+  }
 
   return result;
 }
@@ -776,20 +793,10 @@ async function addContentToImage(colorized, img1File, img2File) {
   const butterCheckbox = document.getElementById('butterCheck');
   if (butterCheckbox && butterCheckbox.checked) {
     try {
-      const butterImg = new Image();
-      butterImg.src = 'src/image/butter.png'; 
-      
-      // Wait for the butter image to load before drawing
-      await new Promise((resolve, reject) => {
-        butterImg.onload = resolve;
-        // Added reject so it doesn't hang if the image path is wrong
-        butterImg.onerror = reject; 
-      });
-
-      // Draw the butter image. Adjust the coordinates (0, 0) as needed.
+      const butterImg = await loadImg(BUTTER_IMG_SRC);
       ctx.drawImage(butterImg, 0, 0, w, h);
     } catch (err) {
-      console.warn("Butter image failed to load:", err);
+      console.warn('Butter image failed to load:', err);
     }
   }
 
@@ -842,7 +849,7 @@ async function processImage() {
     } else {
       const l1 = leftLetter.value.trim()  || 'A';
       const l2 = rightLetter.value.trim() || 'B';
-      final = letterZut(l1, l2, colorized);
+      final = await letterZut(l1, l2, colorized);
     }
 
     // ── Show result ──
