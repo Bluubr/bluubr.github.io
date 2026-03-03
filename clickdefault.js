@@ -5,7 +5,7 @@ window.onload = () => {
   }
 };
 async function uploadToProxy(base64Image) {
-  const proxyUrl = 'https://pezut.netlify.app';
+  const proxyUrl = 'https://pezut.netlify.app/functions/upload';
 
   const response = await fetch(proxyUrl, {
     method: 'POST',
