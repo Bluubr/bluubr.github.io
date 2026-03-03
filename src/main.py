@@ -18,6 +18,9 @@ class PezutifierGUI:
         self.left_image_path = None
         self.right_image_path = None
         self.use_images = tk.BooleanVar()
+        self.use_border = tk.BooleanVar()
+        self.border_color = (0, 0, 0)
+        self.border_hex = "#000000"
         self.left_letter = tk.StringVar(value="A")
         self.right_letter = tk.StringVar(value="B")
         
@@ -119,6 +122,22 @@ class PezutifierGUI:
         self.right_image_label = ttk.Label(button_frame2, text="No image selected")
         self.right_image_label.pack(side=tk.LEFT, padx=10)
         
+        # Border option
+        border_frame = ttk.LabelFrame(main_frame, text="Border", padding="10")
+        border_frame.pack(fill=tk.X, pady=5)
+
+        ttk.Checkbutton(border_frame, text="Add Border", variable=self.use_border,
+                        command=self.toggle_border_color).pack(anchor=tk.W)
+
+        self.border_color_frame = ttk.Frame(border_frame)
+        self.border_color_button = tk.Button(self.border_color_frame, text="Pick Border Color",
+                                             command=self.pick_border_color,
+                                             bg=self.border_hex, width=18, height=2)
+        self.border_color_button.pack(side=tk.LEFT, padx=5)
+        self.border_color_label = ttk.Label(self.border_color_frame,
+                                            text=f"RGB: {self.border_color}\nHex: {self.border_hex}")
+        self.border_color_label.pack(side=tk.LEFT, padx=10)
+
         # Process button
         ttk.Button(main_frame, text="🚀 Process Image", command=self.process_image).pack(pady=20)
         
@@ -134,6 +153,21 @@ class PezutifierGUI:
             self.hex_color = hex_value
             self.color_button.configure(bg=hex_value)
             self.color_label.configure(text=f"RGB: {self.selected_color}\nHex: {hex_value}")
+
+    def toggle_border_color(self):
+        if self.use_border.get():
+            self.border_color_frame.pack(fill=tk.X, pady=(5, 0))
+        else:
+            self.border_color_frame.pack_forget()
+
+    def pick_border_color(self):
+        color = colorchooser.askcolor(title="Pick border color", initialcolor=self.border_hex)
+        if color[0]:
+            (r, g, b), hex_value = color
+            self.border_color = (int(r), int(g), int(b))
+            self.border_hex = hex_value
+            self.border_color_button.configure(bg=hex_value)
+            self.border_color_label.configure(text=f"RGB: {self.border_color}\nHex: {hex_value}")
             
     def toggle_content_type(self):
         if self.use_images.get():
@@ -204,12 +238,32 @@ class PezutifierGUI:
                 output_path = self.get_file_path('Images/outputs/output_with_letters.png')
             
             final_img.save(output_path)
+
+            if self.use_border.get():
+                final_img = self.apply_border(final_img)
+                final_img.save(output_path)
+
             self.status_label.configure(text=f"✅ Complete! Saved: {output_path}")
             messagebox.showinfo("Success", f"Image processed successfully!\nSaved to: {output_path}")
             
         except Exception as e:
             self.status_label.configure(text="❌ Error occurred")
             messagebox.showerror("Error", f"An error occurred: {str(e)}")
+
+    def apply_border(self, image):
+        border_path = self.get_file_path('Images/border.png')
+        border_loaded = Image.open(border_path).convert("RGBA")
+        border_resized = border_loaded.resize(image.size, Image.Resampling.LANCZOS)
+
+        # Tint border: keep alpha channel, replace RGB with the chosen border color
+        r, g, b = self.border_color
+        *_, alpha = border_resized.split()
+        colored = Image.new("RGBA", border_resized.size, (r, g, b, 255))
+        tinted = Image.merge("RGBA", (*colored.split()[:3], alpha))
+
+        result = image.copy()
+        result.paste(tinted, (0, 0), tinted)
+        return result
 
     def colorZut(self, image, color):
         zut_overlay = Image.new("RGBA", image.size, color)
