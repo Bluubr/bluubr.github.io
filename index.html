@@ -342,6 +342,17 @@
     </div>
   </div>
 
+  <!-- ── Letter Color ── -->
+  <div class="card" id="letterColorCard">
+    <div class="card-label">Letter Color</div>
+    <div class="color-row">
+      <label class="color-swatch" title="Click to pick letter color">
+        <input type="color" id="letterColorPicker" value="#ffffff" />
+      </label>
+      <div class="color-meta" id="letterColorMeta">Hex: #ffffff &nbsp;|&nbsp; RGB: 255, 255, 255</div>
+    </div>
+  </div>
+  
   <!-- ── Content Type ── -->
   <div class="card">
     <div class="card-label">Content Type</div>
@@ -436,7 +447,7 @@ let blekCanvas    = null;   // Pre-loaded Blek overlay canvas
 let leftImageFile = null;
 let rightImageFile = null;
 
-const BUTTER_IMG_SRC = 'src/images/butter.png';
+const BUTTER_IMG_SRC = 'images/butter.png';
 
 // ── DOM refs ───────────────────────────────────────────────
 const colorPicker    = document.getElementById('colorPicker');
@@ -516,7 +527,7 @@ function setStatus(msg, kind = '') {
 // ── Preload Blek.png ───────────────────────────────────────
 (async () => {
   try {
-    const img = await loadImg('src/images/Blek.png');
+    const img = await loadImg('images/Blek.png');
     const sq  = cropToSquare(img);
     blekCanvas = sq;
   } catch (e) {
@@ -536,11 +547,11 @@ colorPicker.addEventListener('input', () => {
 
 useDefaultBtn.addEventListener('click', async () => {
   try {
-    baseImageEl = await loadImg('src/images/Base.png');
+    baseImageEl = await loadImg('images/Base.png');
     baseName.textContent = 'Base.png (default)';
     setStatus('Default base image loaded ✓', 'ok');
   } catch {
-    setStatus('Could not load src/image/Base.png — try uploading it manually.', 'err');
+    setStatus('Could not load image/Base.png — try uploading it manually.', 'err');
   }
 });
 
