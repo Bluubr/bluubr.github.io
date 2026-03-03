@@ -922,7 +922,7 @@ async function processImage() {
         // Tint border.png with the chosen color then composite over the result
         const tempC   = document.createElement('canvas');
         tempC.width   = final.width;
-        tempC.height  = final.height;
+        tempC.height  = final.height+85;
         const tempCtx = tempC.getContext('2d');
         tempCtx.drawImage(borderImg, 0, 0, final.width, final.height);
         tempCtx.globalCompositeOperation = 'source-in';
